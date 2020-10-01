@@ -62,7 +62,7 @@ public:
 
         auto offset = [&](int x, int y)
         {
-            return m_maze[(m_stack.top().second + y) * m_nMazeWidth + (m_stack.top().first + x)];
+            return (m_stack.top().second + y) * m_nMazeWidth + (m_stack.top().first + x);
         };
         // Maze Algorithm
         if (m_nVisitedCells < m_nMazeWidth * m_nMazeHeight)
@@ -72,7 +72,9 @@ public:
 
 			// North neighbour
 			if (m_stack.top().second > 0 && (m_maze[offset(0, -1)] & CELL_VISITED) == 0)
+            {
 				neighbours.push_back(0);
+            }
 			// East neighbour
 			if (m_stack.top().first < m_nMazeWidth - 1 && (m_maze[offset(1, 0)] & CELL_VISITED) == 0)
 				neighbours.push_back(1);
@@ -95,18 +97,35 @@ public:
                     case 0: //north
                         m_maze[offset(0, 0)] |= CELL_PATH_N;
                         m_maze[offset(0, -1)] |= CELL_PATH_S;
-                        m_stack.push(std::make_pair((m_stack.top().first + 0), (m_stack.top.second() - 1)));
+                        m_stack.push(std::make_pair((m_stack.top().first + 0), (m_stack.top().second - 1)));
                         break;
                     case 1: //east
+                        m_maze[offset(0, 0)] |= CELL_PATH_E;
+                        m_maze[offset(+1, 0)] |= CELL_PATH_W;
+                        m_stack.push(std::make_pair((m_stack.top().first + 1), (m_stack.top().second + 0)));
+                        break;
 
                     case 2: //south
+                        m_maze[offset(0, 0)] |= CELL_PATH_S;
+                        m_maze[offset(0, +1)] |= CELL_PATH_N;
+                        m_stack.push(std::make_pair((m_stack.top().first + 0), (m_stack.top().second + 1)));
+                        break;
 
                     case 3: //west
+                        m_maze[offset(0, 0)] |= CELL_PATH_W;
+                        m_maze[offset(-1, 0)] |= CELL_PATH_E;
+                        m_stack.push(std::make_pair((m_stack.top().first -1), (m_stack.top().second + 0)));
+                        break;
+                        
                 }
 
                 // new cell
                 m_maze[offset(0, 0)] |= CELL_VISITED;
                 m_nVisitedCells++;
+            }
+            else 
+            {
+            m_stack.pop();
             }
 			
         }
@@ -151,7 +170,7 @@ public:
 int main()
 {
 	OLC_Maze maze;
-	if (maze.Construct(256, 240, 4, 4))
+	if (maze.Construct(160, 100, 8, 8))
 		maze.Start();
 
 	return 0;

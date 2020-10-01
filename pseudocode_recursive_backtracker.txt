@@ -1,0 +1,85 @@
+Psuedo Algorithm
+Close all cells
+Choose starting cell and open it. This is the current cell
+Pick a cell adjacent to the current cell that hasn’t been visited and open it. It becomes the current cell
+Repeat 2 until no adjacent wall can be selected
+The previous cell becomes the current cell. If this cell is the starting cell, then we are done. Else go to 2
+Psuedo Algorithm derived from Jamis Buck's algorithm discription[1]
+
+Further Explaination
+This algorithm works by randomly walking through the maze until it can no longer go forward. Once this happens the walker takes one step back and tries another direction. This process continues until the walker is back at the starting location. The name is derived from this fact, as the walker is 'Backtracking' and repeating its actions recursively.[1] The main body of the algorithm is in the highlighted lines in the implementation below.
+
+Algorithm Implementation
+Algorithm Implemented by Jamis Buck[1] in Ruby
+
+ 1 # --------------------------------------------------------------------
+  2 # Recursive backtracking algorithm for maze generation. Requires that
+   3 # the entire maze be stored in memory, but is quite fast, easy to
+    4 # learn and implement, and (with a few tweaks) gives fairly good mazes.
+     5 # Can also be customized in a variety of ways.
+      6 # --------------------------------------------------------------------
+       7 
+        8 # --------------------------------------------------------------------
+         9 # 1. Allow the maze to be customized via command-line parameters
+         10 # --------------------------------------------------------------------
+         11 
+         12 width  = (ARGV[0] || 10).to_i
+         13 height = (ARGV[1] || width).to_i
+         14 seed   = (ARGV[2] || rand(0xFFFF_FFFF)).to_i
+         15 
+         16 srand(seed)
+         17 
+         18 grid = Array.new(height) { Array.new(width, 0) }
+         19 
+         20 # --------------------------------------------------------------------
+         21 # 2. Set up constants to aid with describing the passage directions
+         22 # --------------------------------------------------------------------
+         23 
+         24 N, S, E, W = 1, 2, 4, 8
+         25 DX         = { E => 1, W => -1, N =>  0, S => 0 }
+         26 DY         = { E => 0, W =>  0, N => -1, S => 1 }
+         27 OPPOSITE   = { E => W, W =>  E, N =>  S, S => N }
+         28 
+         29 # --------------------------------------------------------------------
+         30 # 3. The recursive-backtracking algorithm itself
+         31 # --------------------------------------------------------------------
+         32 
+         33 def carve_passages_from(cx, cy, grid)
+         34   directions = [N, S, E, W].sort_by{rand}
+         35 
+         36   directions.each do |direction|
+         37     nx, ny = cx + DX[direction], cy + DY[direction]
+         38 
+         39     if ny.between?(0, grid.length-1) && nx.between?(0, grid[ny].length-1) && grid[ny][nx] == 0
+         40       grid[cy][cx] |= direction
+         41       grid[ny][nx] |= OPPOSITE[direction]
+         42       carve_passages_from(nx, ny, grid)
+         43     end
+         44   end
+         45 end
+         46 
+         47 carve_passages_from(0, 0, grid)
+         48 
+         49 # --------------------------------------------------------------------
+         50 # 4. A simple routine to emit the maze as ASCII
+         51 # --------------------------------------------------------------------
+         52 
+         53 puts " " + "_" * (width * 2 - 1)
+         54 height.times do |y|
+         55   print "|"
+         56   width.times do |x|
+         57     print((grid[y][x] & S != 0) ? " " : "_")
+         58     if grid[y][x] & E != 0
+         59       print(((grid[y][x] | grid[y][x+1]) & S != 0) ? " " : "_")
+         60     else
+         61       print "|"
+         62     end
+         63   end
+         64   puts
+         65 end
+         66 
+         67 # --------------------------------------------------------------------
+         68 # 5. Show the parameters used to build this maze, for repeatability
+         69 # --------------------------------------------------------------------
+         70 
+         71 puts "#{$0} #{width} #{height} #{seed}"

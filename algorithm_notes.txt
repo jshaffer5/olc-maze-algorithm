@@ -1,0 +1,42 @@
+** RECURSIVE BACKTRACKER ** --> maze algorithm
+  -will need a stack and a list of visited cells
+  -begin at 0,0 in top left corner
+  -this 0,0 will be the top of the stack
+  -this algorithm wworks for creating a maze of any number of neighbors and guarantee
+   ing all cells are visited
+
+PSEUDOCODE:
+-start at the 0,0 pushed onto top of stack
+-from current position, choose one neighbor randomly (options are 0,1 and 1,0)
+-set 0,1 as visited and create a link to it 
+-update visited count to 2 and push new location 0,1 to top of stack
+-select another cell randomly (options are 0,2 and 1,1)
+-set 1,1 as visited and create link to it
+-update visited count to 3 and add 1,1 to top of stack
+-set 2,1 as visited, create link
+-update visited count to 4 and push location 2,1 onto stack
+-*assume we continue until we have no unvisited neighbors
+-current stack: 1,0 
+0 o-o-o         2,0
+|     |         3,0 
+o-o-o-o         3,1
+                2,1
+                1,1
+                0,1
+                0,0
+-top of stack is now 1,0
+-begin popping off stack until we reach a cell with unvisited neighbors
+-cell 3,2 is the first unvisited cell
+-mark as visited and push 3,2 to top of stack
+0 o-o-o
+|     |         
+o-o-o-o        
+      |
+o-o o-o  
+|   |
+o-o-o-X Finish    
+
+-once all cells are visited, rendering algorithm draws maze walls
+-fill in all walls where there is no path
+-maze is now finished 
+END PSEUDOCODE
